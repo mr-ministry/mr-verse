@@ -1,0 +1,16 @@
+*.log
+*.tmp
+*.bak
+*.code-workspace
+.DS_Store
+.env
+.cursorrules
+PROMT*
+
+bin/
+tmp/
+data/
+dist/
+vscode/
+__pycache__/
+node_modules/
