@@ -9,7 +9,7 @@ PROMT*
 
 bin/
 tmp/
-data/
+data/*
 dist/
 vscode/
 __pycache__/
