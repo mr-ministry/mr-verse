@@ -16,13 +16,13 @@ import (
 
 // ControllerWindow represents the main control window
 type ControllerWindow struct {
-	window           fyne.Window
-	app              fyne.App
-	liveWindow       *LiveWindow
+	window            fyne.Window
+	app               fyne.App
+	liveWindow        *LiveWindow
 	versePresentation *presentation.VersePresentation
-	searchEntry      *widget.Entry
+	searchEntry       *widget.Entry
 	translationSelect *widget.Select
-	statusLabel      *widget.Label
+	statusLabel       *widget.Label
 	currentVerseLabel *widget.Label
 }
 
@@ -49,8 +49,8 @@ func RunApp() {
 
 	// Create the controller window
 	controller := &ControllerWindow{
-		window: w,
-		app:    a,
+		window:            w,
+		app:               a,
 		versePresentation: presentation.NewVersePresentation(),
 	}
 
@@ -71,10 +71,12 @@ func RunApp() {
 }
 
 // setupUI sets up the user interface
+// TODO: Default verse to show should be John 3:16
 func (c *ControllerWindow) setupUI() {
 	// Create the search entry
 	c.searchEntry = widget.NewEntry()
-	c.searchEntry.SetPlaceHolder("Enter Bible reference (e.g., John 3:16)")
+	// c.searchEntry.SetPlaceHolder("Enter Bible reference (e.g., John 3:16)")
+	c.searchEntry.SetText("Esther 8:9") // use this to set the default verse
 
 	// Create the search button
 	searchButton := widget.NewButton("Search", func() {
@@ -101,7 +103,8 @@ func (c *ControllerWindow) setupUI() {
 	})
 
 	// Create the live window control button
-	liveWindowButton := widget.NewButton("Open Live Window", func() {
+	// TODO: Change the button color when the live window is open
+	liveWindowButton := widget.NewButton("Go Live", func() {
 		if c.liveWindow.IsOpen() {
 			c.liveWindow.Close()
 		} else {
@@ -116,20 +119,20 @@ func (c *ControllerWindow) setupUI() {
 	})
 
 	// Create the status label
-	c.statusLabel = widget.NewLabel("Live window is closed")
+	c.statusLabel = widget.NewLabel("Offline")
 	c.currentVerseLabel = widget.NewLabel("No verse selected")
 
 	// Create the layout
 	searchContainer := container.NewBorder(nil, nil, nil, searchButton, c.searchEntry)
-	
+
 	controlsContainer := container.NewVBox(
 		widget.NewLabel("Bible Translation:"),
 		c.translationSelect,
 		container.NewHBox(prevButton, nextButton),
 		container.NewHBox(liveWindowButton, updateLiveButton),
 	)
-	
-	statusContainer := container.NewVBox(
+
+	statusContainer := container.NewHBox(
 		widget.NewLabel("Status:"),
 		c.statusLabel,
 		widget.NewLabel("Current Verse:"),
@@ -151,7 +154,7 @@ func (c *ControllerWindow) setupUI() {
 	c.versePresentation.AddObserver(func(verse *bible.Verse) {
 		if verse != nil {
 			c.updateCurrentVerseLabel(verse)
-			
+
 			// Update the live window if it's open
 			if c.liveWindow.IsOpen() {
 				c.liveWindow.UpdateVerse(verse)
@@ -166,7 +169,10 @@ func (c *ControllerWindow) loadTranslations() {
 	if err != nil {
 		// Use a goroutine to show the error dialog on the main thread
 		go func() {
-			dialog.ShowError(fmt.Errorf("failed to load translations: %w", err), c.window)
+			dialog.ShowError(
+				fmt.Errorf("failed to load translations: %w", err),
+				c.window,
+			)
 		}()
 		return
 	}
@@ -184,6 +190,7 @@ func (c *ControllerWindow) loadTranslations() {
 }
 
 // searchVerse searches for a Bible verse
+// TODO: Allow for fuzzy search using keywords from verse reference or verse text
 func (c *ControllerWindow) searchVerse() {
 	reference := c.searchEntry.Text
 	if reference == "" {
@@ -200,7 +207,8 @@ func (c *ControllerWindow) searchVerse() {
 
 	// Get the selected translation
 	translation := c.translationSelect.Selected
-	if translation == "" || translation == "Loading..." || translation == "No translations available" {
+	if translation == "" || translation == "Loading..." ||
+		translation == "No translations available" {
 		dialog.ShowInformation("Error", "Please select a valid translation", c.window)
 		return
 	}
@@ -236,7 +244,10 @@ func (c *ControllerWindow) navigateToPreviousVerse() {
 
 	err := c.versePresentation.FetchAndSetPreviousVerse()
 	if err != nil {
-		dialog.ShowError(fmt.Errorf("failed to fetch previous verse: %w", err), c.window)
+		dialog.ShowError(
+			fmt.Errorf("failed to fetch previous verse: %w", err),
+			c.window,
+		)
 		return
 	}
 }
@@ -272,11 +283,12 @@ func (c *ControllerWindow) updateLiveWindow() {
 }
 
 // updateLiveWindowStatus updates the status label based on the live window state
+// TODO: Set text colors depending on status
 func (c *ControllerWindow) updateLiveWindowStatus(isOpen bool) {
 	if isOpen {
-		c.statusLabel.SetText("Live window is open")
+		c.statusLabel.SetText("Live")
 	} else {
-		c.statusLabel.SetText("Live window is closed")
+		c.statusLabel.SetText("Offline")
 	}
 }
 
@@ -287,6 +299,13 @@ func (c *ControllerWindow) updateCurrentVerseLabel(verse *bible.Verse) {
 		return
 	}
 
-	c.currentVerseLabel.SetText(fmt.Sprintf("%s %d:%d (%s)", verse.Book, verse.Chapter, verse.Verse, verse.Translation))
+	c.currentVerseLabel.SetText(
+		fmt.Sprintf(
+			"%s %d:%d (%s)",
+			verse.Book,
+			verse.Chapter,
+			verse.Verse,
+			verse.Translation,
+		),
+	)
 }
-
