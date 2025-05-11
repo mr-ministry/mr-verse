@@ -18,7 +18,7 @@ var _ fyne.Theme = (*presentationTheme)(nil)
 // NewPresentationTheme creates a new theme instance for the presentation window
 func NewPresentationTheme() fyne.Theme {
 	return &presentationTheme{
-		windowSize: fyne.NewSize(1920, 1600), // Default size
+		windowSize: fyne.NewSize(1920, 1080), // Default size - standard 16:9 resolution
 	}
 }
 
@@ -53,7 +53,7 @@ func (t *presentationTheme) Size(name fyne.ThemeSizeName) float32 {
 		return theme.DefaultTheme().Size(name)
 	}
 	
-	// Base sizes calibrated for 1920x1080 resolution
+	// Base sizes calibrated for 1920x1080 resolution (16:9 aspect ratio)
 	baseHeadingSize := float32(60)
 	baseSubHeadingSize := float32(30)
 	
