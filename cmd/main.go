@@ -11,20 +11,10 @@ import (
 	"github.com/mr-ministry/mr-verse/internal/ui"
 )
 
-func init() {
-	// Load .env file if it exists
-	envFile := ".env"
-	if _, err := os.Stat(envFile); err == nil {
-		err := godotenv.Load(envFile)
-		if err != nil {
-			log.Printf("Warning: Error loading .env file: %v", err)
-		} else {
-			log.Println("Environment variables loaded from .env file")
-		}
-	}
-}
-
 func main() {
+	// Load environment variables
+	loadEnv()
+	
 	// Set up logging
 	setupLogging()
 	
@@ -34,6 +24,20 @@ func main() {
 	// Run the application
 	log.Println("Starting Mr Verse application")
 	ui.RunApp()
+	
+	log.Println("Application shutdown complete")
+}
+
+// loadEnv loads environment variables from .env file
+func loadEnv() {
+	envFile := ".env"
+	if _, err := os.Stat(envFile); err == nil {
+		if err := godotenv.Load(envFile); err != nil {
+			log.Printf("Warning: Error loading .env file: %v", err)
+		} else {
+			log.Println("Environment variables loaded from .env file")
+		}
+	}
 }
 
 // setupLogging configures the application logging

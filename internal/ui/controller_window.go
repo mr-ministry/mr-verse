@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -11,6 +12,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/mr-ministry/mr-verse/internal/bible"
+	"github.com/mr-ministry/mr-verse/internal/config"
 	"github.com/mr-ministry/mr-verse/internal/presentation"
 )
 
@@ -33,18 +35,9 @@ func RunApp() {
 	w := a.NewWindow("Mr Verse - Controller")
 	w.Resize(fyne.NewSize(800, 600))
 
-	// Initialize the database
-	err := bible.InitDB()
-	if err != nil {
-		dialog.ShowError(fmt.Errorf("failed to initialize database: %w", err), w)
-		log.Fatalf("Failed to initialize database: %v", err)
-	}
-
-	// Seed the database with Bible data
-	err = bible.SeedBibleData()
-	if err != nil {
-		dialog.ShowError(fmt.Errorf("failed to seed Bible data: %w", err), w)
-		log.Printf("Failed to seed Bible data: %v", err)
+	// Initialize and seed the database
+	if err := initializeDatabases(w); err != nil {
+		log.Fatalf("Failed to initialize application: %v", err)
 	}
 
 	// Create the controller window
@@ -56,7 +49,6 @@ func RunApp() {
 
 	// Create the live window
 	controller.liveWindow = NewLiveWindow(a, func() {
-		// Update the UI when the live window is closed
 		controller.updateLiveWindowStatus(false)
 	})
 
@@ -68,6 +60,24 @@ func RunApp() {
 
 	// Clean up
 	bible.CloseDB()
+}
+
+// initializeDatabases initializes and seeds the Bible database
+func initializeDatabases(w fyne.Window) error {
+	// Initialize the database
+	if err := bible.InitDB(); err != nil {
+		dialog.ShowError(fmt.Errorf("failed to initialize database: %w", err), w)
+		return err
+	}
+
+	// Seed the database with Bible data
+	if err := bible.SeedBibleData(); err != nil {
+		dialog.ShowError(fmt.Errorf("failed to seed Bible data: %w", err), w)
+		log.Printf("Failed to seed Bible data: %v", err)
+		// Not a fatal error, can continue
+	}
+	
+	return nil
 }
 
 // setupUI sets up the user interface
@@ -118,6 +128,11 @@ func (c *ControllerWindow) setupUI() {
 		c.updateLiveWindow()
 	})
 
+	// Create the settings button
+	settingsButton := widget.NewButton("Settings", func() {
+		c.showSettingsDialog()
+	})
+
 	// Create the status label
 	c.statusLabel = widget.NewLabel("Offline")
 	c.currentVerseLabel = widget.NewLabel("No verse selected")
@@ -130,6 +145,7 @@ func (c *ControllerWindow) setupUI() {
 		c.translationSelect,
 		container.NewHBox(prevButton, nextButton),
 		container.NewHBox(liveWindowButton, updateLiveButton),
+		settingsButton,
 	)
 
 	statusContainer := container.NewHBox(
@@ -308,4 +324,90 @@ func (c *ControllerWindow) updateCurrentVerseLabel(verse *bible.Verse) {
 			verse.Translation,
 		),
 	)
+}
+
+// showSettingsDialog displays the settings dialog
+func (c *ControllerWindow) showSettingsDialog() {
+	// Get current bounds from preferences
+	currentBounds := config.GetMonitorBounds(c.app.Preferences())
+	
+	// Default values
+	var defaultX, defaultY, defaultWidth, defaultHeight int
+	if currentBounds != nil {
+		defaultX = currentBounds.X
+		defaultY = currentBounds.Y
+		defaultWidth = currentBounds.Width
+		defaultHeight = currentBounds.Height
+	} else {
+		// Default values if not set
+		defaultX = 1920 // Common values for a secondary monitor
+		defaultY = 0
+		defaultWidth = 1920
+		defaultHeight = 1600
+	}
+	
+	// Create form fields
+	xEntry := widget.NewEntry()
+	xEntry.SetText(strconv.Itoa(defaultX))
+	
+	yEntry := widget.NewEntry()
+	yEntry.SetText(strconv.Itoa(defaultY))
+	
+	widthEntry := widget.NewEntry()
+	widthEntry.SetText(strconv.Itoa(defaultWidth))
+	
+	heightEntry := widget.NewEntry()
+	heightEntry.SetText(strconv.Itoa(defaultHeight))
+	
+	// Create the form
+	form := &widget.Form{
+		Items: []*widget.FormItem{
+			{Text: "X Position", Widget: xEntry},
+			{Text: "Y Position", Widget: yEntry},
+			{Text: "Width", Widget: widthEntry},
+			{Text: "Height", Widget: heightEntry},
+		},
+		OnSubmit: func() {
+			// Parse the values
+			x, err1 := strconv.Atoi(xEntry.Text)
+			y, err2 := strconv.Atoi(yEntry.Text)
+			width, err3 := strconv.Atoi(widthEntry.Text)
+			height, err4 := strconv.Atoi(heightEntry.Text)
+			
+			// Check for errors
+			if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
+				dialog.ShowError(fmt.Errorf("invalid values, please enter numbers only"), c.window)
+				return
+			}
+			
+			// Save to preferences
+			bounds := &config.MonitorBounds{
+				X:      x,
+				Y:      y,
+				Width:  width,
+				Height: height,
+			}
+			config.SaveMonitorBounds(c.app.Preferences(), bounds)
+			
+			// If live window is open, refresh it with new settings
+			if c.liveWindow.IsOpen() {
+				// Update theme with new size before closing/reopening
+				if currentTheme, ok := c.app.Settings().Theme().(*presentationTheme); ok {
+					currentTheme.UpdateWindowSize(fyne.NewSize(float32(width), float32(height)))
+				}
+				c.liveWindow.Close()
+				c.liveWindow.Open()
+			}
+			
+			dialog.ShowInformation("Settings Saved", "Monitor settings have been saved.", c.window)
+		},
+		OnCancel: func() {
+			// Do nothing
+		},
+		SubmitText: "Save",
+		CancelText: "Cancel",
+	}
+	
+	// Create and show the dialog
+	dialog.ShowCustom("Secondary Monitor Settings", "Close", form, c.window)
 }
