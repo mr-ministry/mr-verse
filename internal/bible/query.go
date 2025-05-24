@@ -280,7 +280,7 @@ func SeedBibleData() error {
 
 		// Skip if already seeded
 		if count > 0 {
-			fmt.Printf("Translation %s already seeded, skipping...\n", translation)
+		// 	fmt.Printf("Translation %s already seeded, skipping...\n", translation)
 			continue
 		}
 

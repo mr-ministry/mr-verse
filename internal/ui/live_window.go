@@ -93,7 +93,7 @@ func (lw *LiveWindow) Open() {
 				Alignment: fyne.TextAlignCenter,
 				SizeName:  theme.SizeNameHeadingText, // This will use our custom theme's large size
 			},
-			Text: "Welcome to Mr-Verse",
+			Text: "JESUS IS KING",
 		},
 	}
 
@@ -107,7 +107,7 @@ func (lw *LiveWindow) Open() {
 				SizeName:  theme.SizeNameSubHeadingText,
 				Alignment: fyne.TextAlignCenter,
 			},
-			Text: "@mrjxtr",
+			Text: "...",
 		},
 	}
 
@@ -144,6 +144,7 @@ func (lw *LiveWindow) Open() {
 		lw.window.CenterOnScreen()
 	}
 
+	lw.window.SetFullScreen(true)
 	lw.window.Show()
 	lw.isOpen = true
 }
