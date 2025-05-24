@@ -2,49 +2,76 @@ package ui
 
 import (
 	"image/color"
+	"math"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
 )
 
-type presentationTheme struct{}
+// presentationTheme customizes the appearance of the presentation window
+type presentationTheme struct {
+	windowSize fyne.Size
+}
 
 var _ fyne.Theme = (*presentationTheme)(nil)
 
 // NewPresentationTheme creates a new theme instance for the presentation window
 func NewPresentationTheme() fyne.Theme {
-	return &presentationTheme{}
+	return &presentationTheme{
+		windowSize: fyne.NewSize(1920, 1080), // Default size - standard 16:9 resolution
+	}
 }
 
-// Color returns the color for the specified name and theme variant
-func (t *presentationTheme) Color(
-	name fyne.ThemeColorName,
-	variant fyne.ThemeVariant,
-) color.Color {
+// NewPresentationThemeWithSize creates a new theme instance with the specified window size
+func NewPresentationThemeWithSize(size fyne.Size) fyne.Theme {
+	return &presentationTheme{
+		windowSize: size,
+	}
+}
+
+// Color returns white for text foreground, otherwise defaults
+func (t *presentationTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
 	if name == theme.ColorNameForeground {
 		return color.White // Force white text
 	}
 	return theme.DefaultTheme().Color(name, variant)
 }
 
-// Font returns the font resource for the specified text style
+// Font delegates to the default theme
 func (t *presentationTheme) Font(style fyne.TextStyle) fyne.Resource {
 	return theme.DefaultTheme().Font(style)
 }
 
-// Icon returns the icon resource for the specified icon name
+// Icon delegates to the default theme
 func (t *presentationTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
 	return theme.DefaultTheme().Icon(name)
 }
 
-// Size returns the size for the specified size name
-// TODO: Make the max font size dynamic based on the window size and/or screen resolution
+// Size returns dynamically calculated text sizes based on screen resolution
 func (t *presentationTheme) Size(name fyne.ThemeSizeName) float32 {
-	if name == theme.SizeNameSubHeadingText {
-		return 30 // Much larger text size for presentation
+	if name != theme.SizeNameHeadingText && name != theme.SizeNameSubHeadingText {
+		return theme.DefaultTheme().Size(name)
 	}
+	
+	// Base sizes calibrated for 1920x1080 resolution (16:9 aspect ratio)
+	baseHeadingSize := float32(60)
+	baseSubHeadingSize := float32(30)
+	
+	// Calculate the scale factor - use sqrt of area ratio for balanced scaling
+	referenceArea := float32(1920 * 1080)
+	actualArea := t.windowSize.Width * t.windowSize.Height
+	
+	// Calculate scale factor with boundaries to prevent extreme sizes
+	scale := float32(math.Sqrt(float64(actualArea / referenceArea)))
+	scale = float32(math.Max(0.5, math.Min(float64(scale), 1.5))) // Limit scale between 0.5 and 1.5
+	
 	if name == theme.SizeNameHeadingText {
-		return 60 // Even larger for headings
+		return baseHeadingSize * scale
 	}
-	return theme.DefaultTheme().Size(name)
+	return baseSubHeadingSize * scale
+}
+
+// UpdateWindowSize allows updating the window size after theme creation
+func (t *presentationTheme) UpdateWindowSize(size fyne.Size) {
+	t.windowSize = size
 }
