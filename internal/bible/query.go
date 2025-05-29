@@ -21,14 +21,14 @@ type Verse struct {
 
 // BibleData represents the structure of the Bible JSON files
 type BibleData struct {
-	Version string                                         `json:"version"`
-	Books   map[string]map[string]ChapterData              `json:"books"`
+	Version string                            `json:"version"`
+	Books   map[string]map[string]ChapterData `json:"books"`
 }
 
 // ChapterData represents the structure of a chapter in the Bible JSON files
 type ChapterData struct {
-	Header  string            `json:"header"`
-	Verses  map[string]string `json:"verses"`
+	Header string            `json:"header"`
+	Verses map[string]string `json:"verses"`
 }
 
 // GetAvailableTranslations returns a list of available Bible translations
@@ -64,7 +64,13 @@ func GetVerse(translation, book string, chapter, verse int) (*Verse, error) {
 	err := row.Scan(&v.ID, &v.Translation, &v.Book, &v.Chapter, &v.Verse, &v.Text)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("verse not found: %s %s %d:%d", translation, book, chapter, verse)
+			return nil, fmt.Errorf(
+				"verse not found: %s %s %d:%d",
+				translation,
+				book,
+				chapter,
+				verse,
+			)
 		}
 		return nil, err
 	}
@@ -124,7 +130,13 @@ func GetNextVerse(translation, book string, chapter, verse int) (*Verse, error) 
 	err = row.Scan(&v.ID, &v.Translation, &v.Book, &v.Chapter, &v.Verse, &v.Text)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("no next verse found: %s %s %d:%d", translation, book, chapter, verse)
+			return nil, fmt.Errorf(
+				"no next verse found: %s %s %d:%d",
+				translation,
+				book,
+				chapter,
+				verse,
+			)
 		}
 		return nil, err
 	}
@@ -184,7 +196,13 @@ func GetPreviousVerse(translation, book string, chapter, verse int) (*Verse, err
 	err = row.Scan(&v.ID, &v.Translation, &v.Book, &v.Chapter, &v.Verse, &v.Text)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("no previous verse found: %s %s %d:%d", translation, book, chapter, verse)
+			return nil, fmt.Errorf(
+				"no previous verse found: %s %s %d:%d",
+				translation,
+				book,
+				chapter,
+				verse,
+			)
 		}
 		return nil, err
 	}
@@ -273,14 +291,15 @@ func SeedBibleData() error {
 
 		// Check if this translation is already in the database
 		var count int
-		err := DB.QueryRow("SELECT COUNT(*) FROM bible WHERE translation = ? LIMIT 1", translation).Scan(&count)
+		err := DB.QueryRow("SELECT COUNT(*) FROM bible WHERE translation = ? LIMIT 1", translation).
+			Scan(&count)
 		if err != nil {
 			return err
 		}
 
 		// Skip if already seeded
 		if count > 0 {
-		// 	fmt.Printf("Translation %s already seeded, skipping...\n", translation)
+			// 	fmt.Printf("Translation %s already seeded, skipping...\n", translation)
 			continue
 		}
 

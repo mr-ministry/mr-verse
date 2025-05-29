@@ -76,7 +76,7 @@ func initializeDatabases(w fyne.Window) error {
 		log.Printf("Failed to seed Bible data: %v", err)
 		// Not a fatal error, can continue
 	}
-	
+
 	return nil
 }
 
@@ -330,7 +330,7 @@ func (c *ControllerWindow) updateCurrentVerseLabel(verse *bible.Verse) {
 func (c *ControllerWindow) showSettingsDialog() {
 	// Get current bounds from preferences
 	currentBounds := config.GetMonitorBounds(c.app.Preferences())
-	
+
 	// Default values
 	var defaultX, defaultY, defaultWidth, defaultHeight int
 	if currentBounds != nil {
@@ -345,20 +345,20 @@ func (c *ControllerWindow) showSettingsDialog() {
 		defaultWidth = 1920
 		defaultHeight = 1080 // Standard 16:9 resolution
 	}
-	
+
 	// Create form fields
 	xEntry := widget.NewEntry()
 	xEntry.SetText(strconv.Itoa(defaultX))
-	
+
 	yEntry := widget.NewEntry()
 	yEntry.SetText(strconv.Itoa(defaultY))
-	
+
 	widthEntry := widget.NewEntry()
 	widthEntry.SetText(strconv.Itoa(defaultWidth))
-	
+
 	heightEntry := widget.NewEntry()
 	heightEntry.SetText(strconv.Itoa(defaultHeight))
-	
+
 	// Create the form
 	form := &widget.Form{
 		Items: []*widget.FormItem{
@@ -373,13 +373,16 @@ func (c *ControllerWindow) showSettingsDialog() {
 			y, err2 := strconv.Atoi(yEntry.Text)
 			width, err3 := strconv.Atoi(widthEntry.Text)
 			height, err4 := strconv.Atoi(heightEntry.Text)
-			
+
 			// Check for errors
 			if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
-				dialog.ShowError(fmt.Errorf("invalid values, please enter numbers only"), c.window)
+				dialog.ShowError(
+					fmt.Errorf("invalid values, please enter numbers only"),
+					c.window,
+				)
 				return
 			}
-			
+
 			// Save to preferences
 			bounds := &config.MonitorBounds{
 				X:      x,
@@ -388,18 +391,24 @@ func (c *ControllerWindow) showSettingsDialog() {
 				Height: height,
 			}
 			config.SaveMonitorBounds(c.app.Preferences(), bounds)
-			
+
 			// If live window is open, refresh it with new settings
 			if c.liveWindow.IsOpen() {
 				// Update theme with new size before closing/reopening
 				if currentTheme, ok := c.app.Settings().Theme().(*presentationTheme); ok {
-					currentTheme.UpdateWindowSize(fyne.NewSize(float32(width), float32(height)))
+					currentTheme.UpdateWindowSize(
+						fyne.NewSize(float32(width), float32(height)),
+					)
 				}
 				c.liveWindow.Close()
 				c.liveWindow.Open()
 			}
-			
-			dialog.ShowInformation("Settings Saved", "Monitor settings have been saved.", c.window)
+
+			dialog.ShowInformation(
+				"Settings Saved",
+				"Monitor settings have been saved.",
+				c.window,
+			)
 		},
 		OnCancel: func() {
 			// Do nothing
@@ -407,7 +416,7 @@ func (c *ControllerWindow) showSettingsDialog() {
 		SubmitText: "Save",
 		CancelText: "Cancel",
 	}
-	
+
 	// Create and show the dialog
 	dialog.ShowCustom("Secondary Monitor Settings", "Close", form, c.window)
 }

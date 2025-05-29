@@ -16,6 +16,11 @@ GOMOD := $(GOCMD) mod
 MAIN_PATH := ./cmd/main.go
 BIN_PATH := ./bin
 
+LINUX_PATH := linux
+WINDOWS_GUI_PATH := windows
+WINDOWS_DEBUG_PATH := windows-debug
+MACOS_PATH := macos
+
 # Build the application
 build:
 	$(GOBUILD) -o $(APP_NAME) $(MAIN_PATH)
@@ -37,24 +42,37 @@ test:
 deps:
 	$(GOMOD) tidy
 
+# GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(BIN_PATH)/$(WINDOWS_DEBUG_PATH)/$(APP_NAME).exe -gcflags "-g -dwarf" $(MAIN_PATH)
+# $(GOBUILD) -o $(BIN_PATH)/$(WINDOWS_GUI_PATH)/$(APP_NAME).exe -ldflags -H=windowsgui $(MAIN_PATH)
+
 # Build for Windows
 build-windows:
-	GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(APP_NAME).exe $(MAIN_PATH)
+	GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(BIN_PATH)/$(WINDOWS_DEBUG_PATH)/$(APP_NAME).exe -gcflags="all=-N -l" $(MAIN_PATH)
 
 # Build for Windows GUI (no terminal)
 build-windows-gui:
-	$(GOBUILD) -o $(BIN_PATH)/$(APP_NAME).exe -ldflags -H=windowsgui $(MAIN_PATH)
+	GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(BIN_PATH)/$(WINDOWS_GUI_PATH)/$(APP_NAME).exe -ldflags="-H=windowsgui -s -w" $(MAIN_PATH)
 
 # Build for macOS
 build-macos:
-	GOOS=darwin GOARCH=amd64 $(GOBUILD) -o $(APP_NAME)-macos $(MAIN_PATH)
+	GOOS=darwin GOARCH=amd64 $(GOBUILD) -o $(BIN_PATH)/$(MACOS_PATH)/$(APP_NAME)-macos $(MAIN_PATH)
 
 # Build for Linux
 build-linux:
-	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(APP_NAME)-linux $(MAIN_PATH)
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BIN_PATH)/$(LINUX_PATH)/$(APP_NAME)-linux $(MAIN_PATH)
 
+# Clean build artifacts
+clean-all:
+	rm -f $(BIN_PATH)/$(BIN_PATH)/$(WINDOWS_GUI_PATH)/$(APP_NAME).exe
+	rm -f $(BIN_PATH)/$(BIN_PATH)/$(WINDOWS_DEBUG_PATH)/$(APP_NAME).exe
+	rm -f $(BIN_PATH)/$(MACOS_PATH)/$(APP_NAME)-macos
+	rm -f $(BIN_PATH)/$(LINUX_PATH)/$(APP_NAME)-linux
+	#
 # Build for all platforms
-build-all: build-windows-gui build-macos build-linux
+build-all: clean-all build-windows build-windows-gui build-macos build-linux
+
+# Linux compaible build
+build-all-linux: clean-all build-linux
 
 # Default target
 all: build 
