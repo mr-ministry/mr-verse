@@ -57,8 +57,8 @@ func (t *presentationTheme) Size(name fyne.ThemeSizeName) float32 {
 	}
 
 	// Base sizes calibrated for 1920x1080 resolution (16:9 aspect ratio)
-	baseHeadingSize := float32(100)
-	baseSubHeadingSize := float32(70)
+	baseHeadingSize := float32(80)
+	baseSubHeadingSize := float32(50)
 
 	// Calculate the scale factor - use sqrt of area ratio for balanced scaling
 	referenceArea := float32(1920 * 1200)
