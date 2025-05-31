@@ -247,6 +247,15 @@ func ParseBibleReference(reference string) (string, int, int, error) {
 	}
 
 	book := strings.Join(parts[:len(parts)-1], " ")
+
+	if strings.Contains(book, "1") && !strings.Contains(book, "1st") {
+		book = strings.Replace(book, "1", "1st", 1)
+	} else if strings.Contains(book, "2") && !strings.Contains(book, "2nd") {
+		book = strings.Replace(book, "2", "2nd", 1)
+	} else if strings.Contains(book, "3") && !strings.Contains(book, "3rd") {
+		book = strings.Replace(book, "3", "3rd", 1)
+	}
+
 	chapterVerse := parts[len(parts)-1]
 
 	cvParts := strings.Split(chapterVerse, ":")
