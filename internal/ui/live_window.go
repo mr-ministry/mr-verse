@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"image/color"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -16,43 +17,20 @@ import (
 
 // LiveWindow represents the presentation window
 type LiveWindow struct {
-	window        fyne.Window
-	app           fyne.App
-	verseText     *widget.RichText
-	reference     *widget.RichText
-	isOpen        bool
-	onClose       func()
-	verseTextSize float32
+	window    fyne.Window
+	app       fyne.App
+	verseText *widget.RichText
+	reference *widget.RichText
+	isOpen    bool
+	onClose   func()
 }
 
 // NewLiveWindow creates a new live window
 func NewLiveWindow(app fyne.App, onClose func()) *LiveWindow {
-	lw := &LiveWindow{
-		app:           app,
-		onClose:       onClose,
-		isOpen:        false,
-		verseTextSize: 36, // Default verse text size
-	}
-	return lw
-}
-
-// SetVerseTextSize sets the text size for verses
-func (lw *LiveWindow) SetVerseTextSize(size float32) {
-	lw.verseTextSize = size
-	if lw.isOpen && lw.verseText != nil {
-		lw.updateVerseTextStyle()
-		lw.verseText.Refresh()
-	}
-}
-
-// updateVerseTextStyle updates the style of the verse text
-func (lw *LiveWindow) updateVerseTextStyle() {
-	if lw.verseText == nil || len(lw.verseText.Segments) == 0 {
-		return
-	}
-
-	if textSegment, ok := lw.verseText.Segments[0].(*widget.TextSegment); ok {
-		textSegment.Style.SizeName = theme.SizeNameHeadingText
+	return &LiveWindow{
+		app:     app,
+		onClose: onClose,
+		isOpen:  false,
 	}
 }
 
@@ -70,8 +48,23 @@ func (lw *LiveWindow) Open() {
 
 	// Create the window
 	lw.window = lw.app.NewWindow("Mr Verse - Live Presentation")
-	// Set our custom theme for larger text
-	lw.app.Settings().SetTheme(NewPresentationTheme())
+	
+	// Get monitor bounds from preferences
+	bounds := config.GetMonitorBounds(lw.app.Preferences())
+	
+	// Calculate size for the window
+	var windowSize fyne.Size
+	if bounds != nil {
+		windowSize = fyne.NewSize(float32(bounds.Width), float32(bounds.Height))
+	} else {
+		// Default size if no secondary monitor is specified
+		windowSize = fyne.NewSize(800, 600)
+	}
+	
+	// Set our custom theme for larger text with size awareness
+	customTheme := NewPresentationThemeWithSize(windowSize)
+	lw.app.Settings().SetTheme(customTheme)
+	
 	lw.window.SetOnClosed(func() {
 		lw.isOpen = false
 		if lw.onClose != nil {
@@ -80,6 +73,26 @@ func (lw *LiveWindow) Open() {
 	})
 
 	// Create the UI components
+	lw.setupUI()
+
+	// Set the content
+	lw.window.Resize(windowSize)
+	lw.window.CenterOnScreen()
+	
+	if bounds != nil {
+		lw.window.SetFullScreen(true)
+	}
+	
+	// Set up a listener for size changes and update the theme dynamically
+	var lastSize fyne.Size = windowSize
+	go lw.monitorWindowSize(lastSize)
+
+	lw.window.Show()
+	lw.isOpen = true
+}
+
+// setupUI creates the UI components for the live window
+func (lw *LiveWindow) setupUI() {
 	lw.verseText = widget.NewRichText()
 	lw.verseText.Wrapping = fyne.TextWrapWord
 
@@ -91,9 +104,9 @@ func (lw *LiveWindow) Open() {
 					Bold: true,
 				},
 				Alignment: fyne.TextAlignCenter,
-				SizeName:  theme.SizeNameHeadingText, // This will use our custom theme's large size
+				SizeName:  theme.SizeNameHeadingText,
 			},
-			Text: "Welcome to Mr-Verse",
+			Text: "JESUS IS KING",
 		},
 	}
 
@@ -107,7 +120,7 @@ func (lw *LiveWindow) Open() {
 				SizeName:  theme.SizeNameSubHeadingText,
 				Alignment: fyne.TextAlignCenter,
 			},
-			Text: "@mrjxtr",
+			Text: "...",
 		},
 	}
 
@@ -126,26 +139,30 @@ func (lw *LiveWindow) Open() {
 
 	// Set the content
 	lw.window.SetContent(mainContent)
+}
 
-	// Configure for secondary monitor if specified
-	bounds, err := config.GetSecondaryMonitorBounds()
-	if err != nil {
-		fmt.Printf("Error getting secondary monitor bounds: %v\n", err)
+// monitorWindowSize monitors window size changes and updates the theme accordingly
+func (lw *LiveWindow) monitorWindowSize(initialSize fyne.Size) {
+	lastSize := initialSize
+	for lw.isOpen {
+		// Check size every 500ms
+		time.Sleep(500 * time.Millisecond)
+		if !lw.isOpen {
+			break
+		}
+		
+		currentSize := lw.window.Canvas().Size()
+		if currentSize.Width != lastSize.Width || currentSize.Height != lastSize.Height {
+			// Size has changed, update the theme
+			if currentTheme, ok := lw.app.Settings().Theme().(*presentationTheme); ok {
+				currentTheme.UpdateWindowSize(currentSize)
+				// Force refresh text
+				lw.verseText.Refresh()
+				lw.reference.Refresh()
+			}
+			lastSize = currentSize
+		}
 	}
-
-	if bounds != nil {
-		lw.window.Resize(fyne.NewSize(float32(bounds.Width), float32(bounds.Height)))
-		// Position the window on the secondary monitor
-		lw.window.CenterOnScreen()
-		lw.window.SetFullScreen(true)
-	} else {
-		// Default size if no secondary monitor is specified
-		lw.window.Resize(fyne.NewSize(800, 600))
-		lw.window.CenterOnScreen()
-	}
-
-	lw.window.Show()
-	lw.isOpen = true
 }
 
 // Close closes the live window
