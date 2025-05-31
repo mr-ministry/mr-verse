@@ -106,7 +106,7 @@ func (lw *LiveWindow) setupUI() {
 				Alignment: fyne.TextAlignCenter,
 				SizeName:  theme.SizeNameHeadingText,
 			},
-			Text: "Welcome to Mr-Verse",
+			Text: "JESUS IS KING",
 		},
 	}
 
@@ -120,7 +120,7 @@ func (lw *LiveWindow) setupUI() {
 				SizeName:  theme.SizeNameSubHeadingText,
 				Alignment: fyne.TextAlignCenter,
 			},
-			Text: "@mrjxtr",
+			Text: "...",
 		},
 	}
 
