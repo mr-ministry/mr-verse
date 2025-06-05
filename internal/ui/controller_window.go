@@ -343,7 +343,8 @@ func (c *ControllerWindow) showSettingsDialog() {
 		defaultX = 1920 // Common values for a secondary monitor
 		defaultY = 0
 		defaultWidth = 1920
-		defaultHeight = 1080 // Standard 16:9 resolution
+		defaultHeight = 1200 // Standard 16:10 resolution
+		// defaultHeight = 1080 // Standard 16:9 resolution
 	}
 
 	// Create form fields

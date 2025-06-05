@@ -88,6 +88,7 @@ func (lw *LiveWindow) Open() {
 	lastSize := windowSize
 	go lw.monitorWindowSize(lastSize)
 
+	lw.window.SetFullScreen(true)
 	lw.window.Show()
 	lw.isOpen = true
 }
