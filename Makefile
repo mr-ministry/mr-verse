@@ -1,4 +1,4 @@
-.PHONY: build run clean test
+.PHONY: build run clean test clean-all clean-linux
 
 # Application name
 APP_NAME := mr-verse
@@ -59,7 +59,7 @@ build-macos:
 
 # Build for Linux
 build-linux:
-	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BIN_PATH)/$(LINUX_PATH)/$(APP_NAME)-linux $(MAIN_PATH)
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -o $(BIN_PATH)/$(LINUX_PATH)/$(APP_NAME)-linux $(MAIN_PATH)
 
 # Clean build artifacts
 clean-all:
@@ -67,12 +67,15 @@ clean-all:
 	rm -f $(BIN_PATH)/$(BIN_PATH)/$(WINDOWS_DEBUG_PATH)/$(APP_NAME).exe
 	rm -f $(BIN_PATH)/$(MACOS_PATH)/$(APP_NAME)-macos
 	rm -f $(BIN_PATH)/$(LINUX_PATH)/$(APP_NAME)-linux
-	#
+
+clean-linux:
+	rm -f $(BIN_PATH)/$(LINUX_PATH)/$(APP_NAME)-linux
+
 # Build for all platforms
 build-all: clean-all build-windows build-windows-gui build-macos build-linux
 
 # Linux compaible build
-build-all-linux: clean-all build-linux
+build-all-linux: clean-linux build-linux
 
 # Default target
 all: build 

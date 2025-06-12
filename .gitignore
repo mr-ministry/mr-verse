@@ -5,7 +5,6 @@
 .DS_Store
 .env
 .cursorrules
-PROMT*
 
 bin/
 tmp/

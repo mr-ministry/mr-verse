@@ -48,10 +48,10 @@ func (lw *LiveWindow) Open() {
 
 	// Create the window
 	lw.window = lw.app.NewWindow("Mr Verse - Live Presentation")
-	
+
 	// Get monitor bounds from preferences
 	bounds := config.GetMonitorBounds(lw.app.Preferences())
-	
+
 	// Calculate size for the window
 	var windowSize fyne.Size
 	if bounds != nil {
@@ -60,11 +60,11 @@ func (lw *LiveWindow) Open() {
 		// Default size if no secondary monitor is specified
 		windowSize = fyne.NewSize(800, 600)
 	}
-	
+
 	// Set our custom theme for larger text with size awareness
 	customTheme := NewPresentationThemeWithSize(windowSize)
 	lw.app.Settings().SetTheme(customTheme)
-	
+
 	lw.window.SetOnClosed(func() {
 		lw.isOpen = false
 		if lw.onClose != nil {
@@ -78,15 +78,17 @@ func (lw *LiveWindow) Open() {
 	// Set the content
 	lw.window.Resize(windowSize)
 	lw.window.CenterOnScreen()
-	
+
 	if bounds != nil {
+		fmt.Println("Bounds not found, defaulting to full screen")
 		lw.window.SetFullScreen(true)
 	}
-	
+
 	// Set up a listener for size changes and update the theme dynamically
-	var lastSize fyne.Size = windowSize
+	lastSize := windowSize
 	go lw.monitorWindowSize(lastSize)
 
+	lw.window.SetFullScreen(true)
 	lw.window.Show()
 	lw.isOpen = true
 }
@@ -120,7 +122,7 @@ func (lw *LiveWindow) setupUI() {
 				SizeName:  theme.SizeNameSubHeadingText,
 				Alignment: fyne.TextAlignCenter,
 			},
-			Text: "...",
+			Text: " ",
 		},
 	}
 
@@ -150,9 +152,10 @@ func (lw *LiveWindow) monitorWindowSize(initialSize fyne.Size) {
 		if !lw.isOpen {
 			break
 		}
-		
+
 		currentSize := lw.window.Canvas().Size()
-		if currentSize.Width != lastSize.Width || currentSize.Height != lastSize.Height {
+		if currentSize.Width != lastSize.Width ||
+			currentSize.Height != lastSize.Height {
 			// Size has changed, update the theme
 			if currentTheme, ok := lw.app.Settings().Theme().(*presentationTheme); ok {
 				currentTheme.UpdateWindowSize(currentSize)
