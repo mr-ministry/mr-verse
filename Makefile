@@ -59,7 +59,7 @@ build-macos:
 
 # Build for Linux
 build-linux:
-	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BIN_PATH)/$(LINUX_PATH)/$(APP_NAME)-linux $(MAIN_PATH)
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -o $(BIN_PATH)/$(LINUX_PATH)/$(APP_NAME)-linux $(MAIN_PATH)
 
 # Clean build artifacts
 clean-all:
