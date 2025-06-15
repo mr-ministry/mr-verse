@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"image/color"
+	"log"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -80,7 +81,7 @@ func (lw *LiveWindow) Open() {
 	lw.window.CenterOnScreen()
 
 	if bounds != nil {
-		fmt.Println("Bounds not found, defaulting to full screen")
+		log.Println("Bounds not found, defaulting to full screen")
 		lw.window.SetFullScreen(true)
 	}
 
