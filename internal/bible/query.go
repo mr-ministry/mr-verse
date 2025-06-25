@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -308,12 +309,12 @@ func SeedBibleData() error {
 
 		// Skip if already seeded
 		if count > 0 {
-			// 	fmt.Printf("Translation %s already seeded, skipping...\n", translation)
+			log.Printf("Translation %s already seeded, skipping...\n", translation)
 			continue
 		}
 
 		// Load and parse the JSON file
-		fmt.Printf("Seeding %s translation from %s...\n", translation, file)
+		log.Printf("Seeding %s translation from %s...\n", translation, file)
 		err = loadBibleFile(file, translation)
 		if err != nil {
 			return fmt.Errorf("error loading %s: %w", file, err)

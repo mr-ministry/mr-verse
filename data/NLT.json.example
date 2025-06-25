@@ -1,0 +1,35 @@
+{
+  "version": "NLT",
+  "books": {
+    "Genesis": {
+      "1": {
+        "header": "GENESIS 1",
+        "verses": {
+          "1": "In the beginning God created the heavens and the earth."
+        }
+      }
+    },
+    "Esther": {
+      "8": {
+        "header": "ESTHER 8",
+        "verses": {
+          "9": "So on June 25 the king’s secretaries were summoned, and a decree was written exactly as Mordecai dictated. It was sent to the Jews and to the highest officers, the governors, and the nobles of all the 127 provinces stretching from India to Ethiopia. The decree was written in the scripts and languages of all the peoples of the empire, including that of the Jews."
+        }
+      }
+    },
+    "John": {
+      "1": {
+        "header": "JOHN 1",
+        "verses": {
+          "1": "In the beginning the Word already existed. The Word was with God, and the Word was God."
+        }
+      },
+      "3": {
+        "header": "JOHN 3",
+        "verses": {
+          "16": "“For this is how God loved the world: He gave his one and only Son, so that everyone who believes in him will not perish but have eternal life."
+        }
+      }
+    }
+  }
+}

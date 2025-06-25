@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -79,7 +78,7 @@ func ensureDataDirectory() {
 	if err != nil {
 		log.Printf("Warning: Could not check for Bible translation files: %v", err)
 	} else if len(files) == 0 {
-		fmt.Println("Warning: No Bible translation files found in the data directory.")
-		fmt.Println("Please add at least one Bible translation JSON file to the data directory.")
+		log.Println("Warning: No Bible translation files found in the data directory.")
+		log.Println("Please add at least one Bible translation JSON file to the data directory.")
 	}
 }
