@@ -8,7 +8,8 @@
 
 bin/
 tmp/
-data/*
+data/*.json
+data/*.db
 dist/
 vscode/
 __pycache__/
