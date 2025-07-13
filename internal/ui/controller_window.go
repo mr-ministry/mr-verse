@@ -81,13 +81,13 @@ func initializeDatabases(w fyne.Window) error {
 }
 
 // setupUI sets up the user interface
-// TODO: Default verse to show should be John 3:16
 func (c *ControllerWindow) setupUI() {
 	// Create the search entry
 	c.searchEntry = widget.NewEntry()
 	// c.searchEntry.SetPlaceHolder("Enter Bible reference (e.g., John 3:16)")
-	c.searchEntry.SetText("Esther 8:9") // use this to set the default verse
 
+	// c.searchEntry.SetText("Esther 8:9") // use this to set the default verse
+	c.searchEntry.SetText("John 3:16")
 	// Create the search button
 	searchButton := widget.NewButton("Search", func() {
 		c.searchVerse()
