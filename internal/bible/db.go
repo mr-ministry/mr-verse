@@ -16,7 +16,9 @@ var DB *sql.DB
 func getDBPath() string {
 	dbPath := os.Getenv("DB_PATH")
 	if dbPath == "" {
-		dbPath = "./data/bible.db"
+		// Allow app to access db on the same dir as the executable
+		// if there is no .env or the DB_PATH varaible is not set
+		dbPath = "./bible.db"
 	}
 	return dbPath
 }
@@ -27,7 +29,7 @@ func getDBPath() string {
 func OpenDB() (*sql.DB, error) {
 	// Get the database path
 	dbPath := getDBPath()
-	
+
 	// Ensure the data directory exists
 	err := os.MkdirAll(filepath.Dir(dbPath), 0755)
 	if err != nil {
