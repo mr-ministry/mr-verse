@@ -81,6 +81,10 @@ func initializeDatabases(w fyne.Window) error {
 }
 
 // setupUI sets up the user interface
+// TODO: Default verse to show should be John 3:16
+// TODO: Make a preview window showing the searched verse
+// do this so that the search view and the live view is separate
+// we can freely search a verse without disturbing the live window
 func (c *ControllerWindow) setupUI() {
 	// Create the search entry
 	c.searchEntry = widget.NewEntry()
