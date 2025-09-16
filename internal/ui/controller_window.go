@@ -76,6 +76,13 @@ func initializeDatabases(w fyne.Window) error {
 		// Not a fatal error, can continue
 	}
 
+	// Seed chapter headers (runs safely even if verses already exist)
+	if err := bible.SeedChapterHeaders(); err != nil {
+		dialog.ShowError(fmt.Errorf("failed to seed chapter headers: %w", err), w)
+		log.Printf("Failed to seed chapter headers: %v", err)
+		// Not a fatal error, can continue
+	}
+
 	return nil
 }
 

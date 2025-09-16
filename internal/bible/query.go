@@ -32,6 +32,27 @@ type ChapterData struct {
 	Verses map[string]string `json:"verses"`
 }
 
+// GetChapterHeader fetches a localized chapter header for a translation/book/chapter.
+// Returns ok=false when there is no stored header.
+func GetChapterHeader(translation, book string, chapter int) (header string, ok bool, err error) {
+	query := `
+		SELECT header
+		FROM chapter_headers
+		WHERE translation = ? AND book = ? AND chapter = ?
+		LIMIT 1
+	`
+	row := DB.QueryRow(query, translation, book, chapter)
+
+	var h string
+	if scanErr := row.Scan(&h); scanErr != nil {
+		if scanErr == sql.ErrNoRows {
+			return "", false, nil
+		}
+		return "", false, scanErr
+	}
+	return h, true, nil
+}
+
 // GetAvailableTranslations returns a list of available Bible translations
 func GetAvailableTranslations() ([]string, error) {
 	rows, err := DB.Query("SELECT DISTINCT translation FROM bible ORDER BY translation")
@@ -388,4 +409,72 @@ func loadBibleFile(filePath, translation string) error {
 
 	// Commit the transaction
 	return tx.Commit()
+}
+
+// SeedChapterHeaders reads JSON files and stores per-chapter headers.
+// Safe to run multiple times thanks to INSERT OR IGNORE.
+func SeedChapterHeaders() error {
+	files, err := filepath.Glob("./data/*.json")
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		translation := strings.TrimSuffix(filepath.Base(file), ".json")
+
+		data, readErr := os.ReadFile(file)
+		if readErr != nil {
+			return readErr
+		}
+
+		var bibleData BibleData
+		if unmarshalErr := json.Unmarshal(data, &bibleData); unmarshalErr != nil {
+			return unmarshalErr
+		}
+
+		tx, beginErr := DB.Begin()
+		if beginErr != nil {
+			return beginErr
+		}
+		var txErr error
+		defer func() {
+			if txErr != nil {
+				tx.Rollback()
+			}
+		}()
+
+		stmt, prepErr := tx.Prepare(`
+			INSERT OR IGNORE INTO chapter_headers (translation, book, chapter, header)
+			VALUES (?, ?, ?, ?)
+		`)
+		if prepErr != nil {
+			tx.Rollback()
+			return prepErr
+		}
+		defer stmt.Close()
+
+		for book, chapters := range bibleData.Books {
+			for chapterStr, chapterData := range chapters {
+				if chapterData.Header == "" {
+					continue
+				}
+				chapterNum, parseErr := parseIntWithError(chapterStr, "chapter")
+				if parseErr != nil {
+					continue
+				}
+				if _, execErr := stmt.Exec(translation, book, chapterNum, chapterData.Header); execErr != nil {
+					txErr = execErr
+					tx.Rollback()
+					return execErr
+				}
+			}
+		}
+
+		if commitErr := tx.Commit(); commitErr != nil {
+			return commitErr
+		}
+		log.Printf("Seeded headers for %s from %s...\n", translation, file)
+	}
+
+	return nil
 }

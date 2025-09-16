@@ -95,6 +95,30 @@ func createTables() error {
 		return err
 	}
 
+	// Create the chapter_headers table for localized chapter headers
+	_, err = DB.Exec(`
+		CREATE TABLE IF NOT EXISTS chapter_headers (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			translation TEXT NOT NULL,
+			book TEXT NOT NULL,
+			chapter INTEGER NOT NULL,
+			header TEXT NOT NULL,
+			UNIQUE(translation, book, chapter)
+		)
+	`)
+	if err != nil {
+		return err
+	}
+
+	// Create index for chapter headers lookups
+	_, err = DB.Exec(`
+		CREATE INDEX IF NOT EXISTS idx_chapter_headers_lookup
+		ON chapter_headers(translation, book, chapter)
+	`)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
