@@ -183,14 +183,13 @@ func (lw *LiveWindow) UpdateVerse(verse *bible.Verse) {
 		return
 	}
 
-	// Update the reference
-	referenceText := fmt.Sprintf(
-		"%s %d:%d (%s)",
-		verse.Book,
-		verse.Chapter,
-		verse.Verse,
-		verse.Translation,
-	)
+	// Update the reference; prefer localized chapter header if available
+	var referenceText string
+	if header, ok, err := bible.GetChapterHeader(verse.Translation, verse.Book, verse.Chapter); err == nil && ok && header != "" {
+		referenceText = fmt.Sprintf("%s:%d %s", header, verse.Verse, verse.Translation)
+	} else {
+		referenceText = fmt.Sprintf("%s %d:%d %s", verse.Book, verse.Chapter, verse.Verse, verse.Translation)
+	}
 	lw.reference.Segments = []widget.RichTextSegment{
 		&widget.TextSegment{
 			Style: widget.RichTextStyle{
