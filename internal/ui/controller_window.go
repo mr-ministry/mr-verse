@@ -1,9 +1,9 @@
+// Package ui
 package ui
 
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -12,7 +12,6 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/mr-ministry/mr-verse/internal/bible"
-	"github.com/mr-ministry/mr-verse/internal/config"
 	"github.com/mr-ministry/mr-verse/internal/presentation"
 )
 
@@ -124,14 +123,14 @@ func (c *ControllerWindow) setupUI() {
 	})
 
 	// Create the update live window button
-	updateLiveButton := widget.NewButton("Update Live Window", func() {
+	updateLiveButton := widget.NewButton("Update Verse", func() {
 		c.updateLiveWindow()
 	})
 
 	// Create the settings button
-	settingsButton := widget.NewButton("Settings", func() {
-		c.showSettingsDialog()
-	})
+	// settingsButton := widget.NewButton("Settings", func() {
+	// 	c.showSettingsDialog()
+	// })
 
 	// Create the status label
 	c.statusLabel = widget.NewLabel("Offline")
@@ -140,12 +139,17 @@ func (c *ControllerWindow) setupUI() {
 	// Create the layout
 	searchContainer := container.NewBorder(nil, nil, nil, searchButton, c.searchEntry)
 
+	// Use a 2-column grid so button widths align across rows
+	buttons := container.NewGridWithColumns(2,
+		prevButton, nextButton,
+		liveWindowButton, updateLiveButton,
+	)
+
 	controlsContainer := container.NewVBox(
 		widget.NewLabel("Bible Translation:"),
 		c.translationSelect,
-		container.NewHBox(prevButton, nextButton),
-		container.NewHBox(liveWindowButton, updateLiveButton),
-		settingsButton,
+		buttons,
+		// settingsButton,
 	)
 
 	statusContainer := container.NewHBox(
@@ -327,97 +331,97 @@ func (c *ControllerWindow) updateCurrentVerseLabel(verse *bible.Verse) {
 }
 
 // showSettingsDialog displays the settings dialog
-func (c *ControllerWindow) showSettingsDialog() {
-	// Get current bounds from preferences
-	currentBounds := config.GetMonitorBounds(c.app.Preferences())
-
-	// Default values
-	var defaultX, defaultY, defaultWidth, defaultHeight int
-	if currentBounds != nil {
-		defaultX = currentBounds.X
-		defaultY = currentBounds.Y
-		defaultWidth = currentBounds.Width
-		defaultHeight = currentBounds.Height
-	} else {
-		// Default values if not set
-		defaultX = 1920 // Common values for a secondary monitor
-		defaultY = 0
-		defaultWidth = 1920
-		defaultHeight = 1200 // Standard 16:10 resolution
-		// defaultHeight = 1080 // Standard 16:9 resolution
-	}
-
-	// Create form fields
-	xEntry := widget.NewEntry()
-	xEntry.SetText(strconv.Itoa(defaultX))
-
-	yEntry := widget.NewEntry()
-	yEntry.SetText(strconv.Itoa(defaultY))
-
-	widthEntry := widget.NewEntry()
-	widthEntry.SetText(strconv.Itoa(defaultWidth))
-
-	heightEntry := widget.NewEntry()
-	heightEntry.SetText(strconv.Itoa(defaultHeight))
-
-	// Create the form
-	form := &widget.Form{
-		Items: []*widget.FormItem{
-			{Text: "X Position", Widget: xEntry},
-			{Text: "Y Position", Widget: yEntry},
-			{Text: "Width", Widget: widthEntry},
-			{Text: "Height", Widget: heightEntry},
-		},
-		OnSubmit: func() {
-			// Parse the values
-			x, err1 := strconv.Atoi(xEntry.Text)
-			y, err2 := strconv.Atoi(yEntry.Text)
-			width, err3 := strconv.Atoi(widthEntry.Text)
-			height, err4 := strconv.Atoi(heightEntry.Text)
-
-			// Check for errors
-			if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
-				dialog.ShowError(
-					fmt.Errorf("invalid values, please enter numbers only"),
-					c.window,
-				)
-				return
-			}
-
-			// Save to preferences
-			bounds := &config.MonitorBounds{
-				X:      x,
-				Y:      y,
-				Width:  width,
-				Height: height,
-			}
-			config.SaveMonitorBounds(c.app.Preferences(), bounds)
-
-			// If live window is open, refresh it with new settings
-			if c.liveWindow.IsOpen() {
-				// Update theme with new size before closing/reopening
-				if currentTheme, ok := c.app.Settings().Theme().(*presentationTheme); ok {
-					currentTheme.UpdateWindowSize(
-						fyne.NewSize(float32(width), float32(height)),
-					)
-				}
-				c.liveWindow.Close()
-				c.liveWindow.Open()
-			}
-
-			dialog.ShowInformation(
-				"Settings Saved",
-				"Monitor settings have been saved.",
-				c.window,
-			)
-		},
-		OnCancel: func() {
-			// Do nothing
-		},
-		SubmitText: "Save",
-		CancelText: "Cancel",
-	}
-
-	// Create and show the dialog
-	dialog.ShowCustom("Secondary Monitor Settings", "Close", form, c.window)
-}
+// func (c *ControllerWindow) showSettingsDialog() {
+// 	// Get current bounds from preferences
+// 	currentBounds := config.GetMonitorBounds(c.app.Preferences())
+//
+// 	// Default values
+// 	var defaultX, defaultY, defaultWidth, defaultHeight int
+// 	if currentBounds != nil {
+// 		defaultX = currentBounds.X
+// 		defaultY = currentBounds.Y
+// 		defaultWidth = currentBounds.Width
+// 		defaultHeight = currentBounds.Height
+// 	} else {
+// 		// Default values if not set
+// 		defaultX = 1920 // Common values for a secondary monitor
+// 		defaultY = 0
+// 		defaultWidth = 1920
+// 		defaultHeight = 1200 // Standard 16:10 resolution
+// 		// defaultHeight = 1080 // Standard 16:9 resolution
+// 	}
+//
+// 	// Create form fields
+// 	xEntry := widget.NewEntry()
+// 	xEntry.SetText(strconv.Itoa(defaultX))
+//
+// 	yEntry := widget.NewEntry()
+// 	yEntry.SetText(strconv.Itoa(defaultY))
+//
+// 	widthEntry := widget.NewEntry()
+// 	widthEntry.SetText(strconv.Itoa(defaultWidth))
+//
+// 	heightEntry := widget.NewEntry()
+// 	heightEntry.SetText(strconv.Itoa(defaultHeight))
+//
+// 	// Create the form
+// 	form := &widget.Form{
+// 		Items: []*widget.FormItem{
+// 			{Text: "X Position", Widget: xEntry},
+// 			{Text: "Y Position", Widget: yEntry},
+// 			{Text: "Width", Widget: widthEntry},
+// 			{Text: "Height", Widget: heightEntry},
+// 		},
+// 		OnSubmit: func() {
+// 			// Parse the values
+// 			x, err1 := strconv.Atoi(xEntry.Text)
+// 			y, err2 := strconv.Atoi(yEntry.Text)
+// 			width, err3 := strconv.Atoi(widthEntry.Text)
+// 			height, err4 := strconv.Atoi(heightEntry.Text)
+//
+// 			// Check for errors
+// 			if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
+// 				dialog.ShowError(
+// 					fmt.Errorf("invalid values, please enter numbers only"),
+// 					c.window,
+// 				)
+// 				return
+// 			}
+//
+// 			// Save to preferences
+// 			bounds := &config.MonitorBounds{
+// 				X:      x,
+// 				Y:      y,
+// 				Width:  width,
+// 				Height: height,
+// 			}
+// 			config.SaveMonitorBounds(c.app.Preferences(), bounds)
+//
+// 			// If live window is open, refresh it with new settings
+// 			if c.liveWindow.IsOpen() {
+// 				// Update theme with new size before closing/reopening
+// 				if currentTheme, ok := c.app.Settings().Theme().(*presentationTheme); ok {
+// 					currentTheme.UpdateWindowSize(
+// 						fyne.NewSize(float32(width), float32(height)),
+// 					)
+// 				}
+// 				c.liveWindow.Close()
+// 				c.liveWindow.Open()
+// 			}
+//
+// 			dialog.ShowInformation(
+// 				"Settings Saved",
+// 				"Monitor settings have been saved.",
+// 				c.window,
+// 			)
+// 		},
+// 		OnCancel: func() {
+// 			// Do nothing
+// 		},
+// 		SubmitText: "Save",
+// 		CancelText: "Cancel",
+// 	}
+//
+// 	// Create and show the dialog
+// 	dialog.ShowCustom("Secondary Monitor Settings", "Close", form, c.window)
+// }
