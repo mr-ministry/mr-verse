@@ -20,6 +20,7 @@ Transform your ministry with this lightning-fast, cross-platform Bible verse dis
 ## 🌟 Features
 
 ### 🎯 **Core Functionality**
+
 - **📺 Dual-Screen Presentation** - Dedicated live presentation window optimized for projectors and secondary monitors
 - **🎮 Intuitive Controller** - Clean, easy-to-use control interface for seamless verse management
 - **⚡ Lightning-Fast Navigation** - Instant previous/next verse navigation with smart cross-chapter and cross-book transitions
@@ -29,12 +30,14 @@ Transform your ministry with this lightning-fast, cross-platform Bible verse dis
 - **🎨 Presentation-Optimized UI** - Large, readable text with dark backgrounds for optimal visibility
 
 ### 📖 **Bible Data Management**
+
 - **💾 SQLite Database** - Efficient local storage with automatic JSON-to-database seeding
 - **🔄 Dynamic Translation Loading** - Automatic detection and loading of Bible translation files
 - **📊 Smart Caching** - Optimized verse retrieval and navigation performance
 - **🔗 Contextual Navigation** - Intelligent verse sequencing across chapters and books
 
 ### ⚙️ **Technical Excellence**
+
 - **🎯 Observer Pattern** - Real-time verse updates across all windows
 - **🧵 Thread-Safe Operations** - Concurrent-safe verse presentation management
 - **📝 Comprehensive Logging** - Detailed application logs for troubleshooting
@@ -52,28 +55,29 @@ Transform your ministry with this lightning-fast, cross-platform Bible verse dis
 
 #### Option 1: Build from Source
 
-   ```bash
-   # Clone the powerhouse
-   git clone https://github.com/mr-ministry/mr-verse.git
-   cd mr-verse
+```bash
+# Clone the powerhouse
+git clone https://github.com/mr-ministry/mr-verse.git
+cd mr-verse
 
-   # Build the application
-   make build
+# Build the application
+make build
 
-   # Launch and inspire! 🎉
-   ./mr-verse
-   ```
+# Launch and inspire! 🎉
+./mr-verse
+```
 
 #### Option 2: Cross-Platform Builds
-   ```bash
-   # Build for all platforms
-   make build-all
 
-   # Or target specific platforms
-   make build-windows    # Windows executable
-   make build-macos      # macOS binary  
-   make build-linux      # Linux binary
-   ```
+```bash
+# Build for all platforms
+make build-all
+
+# Or target specific platforms
+make build-windows    # Windows executable
+make build-macos      # macOS binary
+make build-linux      # Linux binary
+```
 
 ### 📊 **Adding Bible Translations**
 
@@ -137,7 +141,7 @@ Optimized for maximum visual impact:
 │   └── main.go            # Startup logic & initialization
 ├── 🧠 internal/            # Core application logic
 │   ├── 📖 bible/          # Bible data management
-│   │   ├── db.go          # SQLite database operations  
+│   │   ├── db.go          # SQLite database operations
 │   │   └── query.go       # Verse retrieval & navigation
 │   ├── ⚙️ config/         # Settings & preferences
 │   ├── 🎭 presentation/   # Verse display logic
@@ -166,7 +170,7 @@ make build-all      # Cross-platform build
 ### 🧪 **Testing & Quality**
 
 - **Unit Tests** - Comprehensive test coverage for core functionality
-- **Thread Safety** - Concurrent operations tested and verified  
+- **Thread Safety** - Concurrent operations tested and verified
 - **Memory Management** - Optimized resource usage patterns
 - **Error Handling** - Graceful degradation and user feedback
 
@@ -175,7 +179,7 @@ make build-all      # Cross-platform build
 Pre-configured support for popular translations:
 
 - **NIV** - New International Version
-- **NKJV** - New King James Version  
+- **NKJV** - New King James Version
 - **NLT** - New Living Translation
 - **RCPV** - Revised Common Prayer Version
 
@@ -183,7 +187,7 @@ Pre-configured support for popular translations:
 
 ## 🤝 Contributing
 
-We welcome contributions that help spread the Word! 
+We welcome contributions that help spread the Word!
 
 1. 🍴 Fork the repository
 2. 🌿 Create your feature branch (`git checkout -b feat/amazing-feature`)
@@ -194,7 +198,7 @@ We welcome contributions that help spread the Word!
 ### 📝 **Commit Guidelines**
 
 - `feat:` - New features
-- `fix:` - Bug fixes  
+- `fix:` - Bug fixes
 - `refactor:` - Code improvements
 - `docs:` - Documentation updates
 
@@ -203,15 +207,22 @@ We welcome contributions that help spread the Word!
 Built with love for the global church community. Whether you're:
 
 - 🏛️ **Churches** - Enhance your worship services
-- 📖 **Bible Study Groups** - Engage your participants  
+- 📖 **Bible Study Groups** - Engage your participants
 - 🎓 **Teachers** - Create impactful presentations
 - 🏠 **Home Use** - Personal scripture meditation
 
 Mr Verse empowers you to share God's Word with clarity and beauty.
 
+## 🛣️ ROADMAP
+
+- [x] Bible reference in the same language as the selected version
+- [ ] Searching with a translation suffix automatically selects that translation
+- [ ] Verse preview before showing in live view
+- [ ] Showing multiple verses at a time
+
 ## 📄 License
 
-Open source with ❤️ - check [LICENSE](LICENSE) for details.
+Open source with ❤️ - check [LICENSE](./LICENSE) for details.
 
 ---
 
@@ -219,6 +230,6 @@ Open source with ❤️ - check [LICENSE](LICENSE) for details.
 
 **🌟 Built with Go • Powered by Fyne • Designed for Ministry 🌟**
 
-*"Faith comes by hearing, and hearing by the word of God." - Romans 10:17*
+_"Faith comes by hearing, and hearing by the word of God." - Romans 10:17_
 
 </div>
