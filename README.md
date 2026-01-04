@@ -219,6 +219,7 @@ Mr Verse empowers you to share God's Word with clarity and beauty.
 - [ ] Searching with a translation suffix automatically selects that translation
 - [ ] Verse preview before showing in live view
 - [ ] Showing multiple verses at a time
+- [ ] Clickable exit button
 
 ## 📄 License
 
